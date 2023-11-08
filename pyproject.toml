@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "gsc-api"
+version = "0.1.0"
+description = ""
+authors = ["Sean <emailsean@duck.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.10,<3.13"
+django = "^4.2.7"
+oauthlib = "^3.2.2"
+sqlparse = "^0.4.4"
+requests = "^2.31.0"
+google-api-python-client = "^2.106.0"
+pandas = "^2.1.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
