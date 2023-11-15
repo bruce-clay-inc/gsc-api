@@ -8,14 +8,18 @@ from django.views import View
 from urllib.parse import quote_plus
 from django.http.response import JsonResponse
 from .models import Search_Console
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 
+@method_decorator(csrf_exempt, name='dispatch')
 class SyncDataView(View):
     """ View to Sync GSC Data with the Database """
 
     def post(self, request):
         post_data = json.loads(request.body) if request.body else request.POST
         access_token = post_data.get('access_token')        
-        gsc_site = post_data.get('gsc_site')        
+        gsc_site = post_data.get('gsc_site')
+        keywords = post_data.get('keywords')     
 
         if access_token is None:
             return JsonResponse({'status': 'error', 'message': 'no access token supplied'}, status=HTTPStatus.BAD_REQUEST)
@@ -32,14 +36,23 @@ class SyncDataView(View):
             'endDate': datetime.datetime.strftime(end_date,'%Y-%m-%d'),
             'dimensions': ['date','page','query'],
             'rowLimit': 25000, 
-            'startRow': 0
+            'startRow': 0,
+            'dimensionFilterGroups': [
+                {'groupType': "and",
+                 'filters': [{
+                        'dimension': "query",
+                        'operator': "includingRegex",
+                        'expression': f'^({"|".join(keywords)})$'
+                     }]
+                    }
+                ]
         }
 
         data = []
         while True:
             r = requests.post(endpoint, headers=headers, json=parameters)
             if r.status_code == 403:
-                # Implement re-authorization here
+                raise Exception(f'Invalid response from API: {r.status_code} {r.text}')
                 pass
             elif r.status_code == 200:
                 this_data = r.json()
@@ -51,12 +64,12 @@ class SyncDataView(View):
                 raise Exception(f'Invalid response from API: {r.status_code} {r.text}')
         
         for d in data:
-            impressions = d['impressions'],
-            ctr = d['ctr'],
-            position = d['position'],
-            date = d['date'],
-            keyword = d['query'],
-            clicks = d['clicks'],
+            impressions = d['impressions']
+            ctr = d['ctr']
+            position = d['position']
+            date = datetime.datetime.strptime(d['keys'][0],"%Y-%m-%d")
+            keyword = d['keys'][2]
+            clicks = d['clicks']
             sc, created = Search_Console.objects.update_or_create(
                 date=date, 
                 query=keyword, 

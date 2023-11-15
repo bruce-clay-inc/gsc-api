@@ -4,6 +4,7 @@ class Search_Console(models.Model):
     date = models.DateField()
     clicks = models.IntegerField()
     impressions = models.IntegerField()
+    site = models.URLField()
     ctr = models.FloatField()
     position = models.IntegerField()
     query = models.CharField(max_length=255)
