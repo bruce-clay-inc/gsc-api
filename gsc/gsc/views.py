@@ -51,15 +51,19 @@ class SyncDataView(View):
         data = []
         while True:
             r = requests.post(endpoint, headers=headers, json=parameters)
-            if r.status_code == 403:
-                raise Exception(f'Invalid response from API: {r.status_code} {r.text}')
-                pass
-            elif r.status_code == 200:
+            if r.status_code == 403: 
+                endpoint = f'https://www.googleapis.com/webmasters/v3/sites/{quote_plus(gsc_site)}/searchAnalytics/query'
+                headers = {
+                    'Authorization': f'Bearer {access_token}',
+                    'Content-Type': 'application/json'
+                    }
+                r = requests.post(endpoint, headers=headers, json=parameters)
+            if r.status_code == 200:
                 this_data = r.json()
                 data.extend(this_data.get('rows', []))
                 parameters['startRow'] += parameters['rowLimit']
-                if 'rows' not in this_data:
-                    break
+            if 'rows' not in this_data:
+                break
             else:
                 raise Exception(f'Invalid response from API: {r.status_code} {r.text}')
         
