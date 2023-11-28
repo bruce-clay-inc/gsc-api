@@ -52,12 +52,11 @@ class SyncDataView(View):
         while True:
             r = requests.post(endpoint, headers=headers, json=parameters)
             if r.status_code == 403: 
-                endpoint = f'https://www.googleapis.com/webmasters/v3/sites/{quote_plus(gsc_site)}/searchAnalytics/query'
-                headers = {
-                    'Authorization': f'Bearer {access_token}',
-                    'Content-Type': 'application/json'
-                    }
-                r = requests.post(endpoint, headers=headers, json=parameters)
+                def post(self, request):
+                    post_data = json.loads(request.body) if request.body else request.POST
+                    access_token = post_data.get('access_token')    
+
+                endpoint = f'http://bruceclay.info/api/google-api-access-token?key=thechurchbelltollstheknell&user=bci-reporting@bruceclay.com'
             if r.status_code == 200:
                 this_data = r.json()
                 data.extend(this_data.get('rows', []))
@@ -82,3 +81,16 @@ class SyncDataView(View):
             )            
 
         return JsonResponse({'status': 'accepted'}, status=HTTPStatus.ACCEPTED)
+
+@method_decorator(csrf_exempt, name='dispatch')
+class QueryDataView(View):
+        """ View to query data from the database """
+
+def get(self, request):
+        
+    queryset = Search_Console.objects.filter(site='example.com', date__range=['2023-09-01', '2023-09-30'])
+        
+        # Convert the queryset to a list of dictionaries
+    data = list(queryset.values())
+
+    return JsonResponse({'data': data}, status=200)
