@@ -1,0 +1,9 @@
+[Unit]
+Description=gsc-api gunicorn socket
+
+[Socket]
+ListenStream=/run/gsc-api.sock
+
+[Install]
+WantedBy=sockets.target
+

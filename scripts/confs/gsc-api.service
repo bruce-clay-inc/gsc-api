@@ -1,0 +1,14 @@
+[Unit]
+Description=gsc-api gunicorn daemon
+Requires=gsc-api.socket
+After=network.target
+
+[Service]
+User=root
+Group=root
+WorkingDirectory=/home/ubuntu/gsc-api/gsc
+ExecStart=/home/ubuntu/.cache/pypoetry/virtualenvs/gsc-api-UMzAv8LD-py3.10/bin/gunicorn --workers 3 --bind unix:/run/gsc-api.sock --access-logfile /var/log/gunicorn.log --error-logfile /var/log/gunicorn.err viewsapp.wsgi:application
+
+[Install]
+WantedBy=multi-user.target
+
