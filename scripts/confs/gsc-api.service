@@ -7,7 +7,7 @@ After=network.target
 User=root
 Group=root
 WorkingDirectory=/home/ubuntu/gsc-api/gsc
-ExecStart=/home/ubuntu/.cache/pypoetry/virtualenvs/gsc-api-UMzAv8LD-py3.10/bin/gunicorn --workers 3 --bind unix:/run/gsc-api.sock --access-logfile /var/log/gunicorn.log --error-logfile /var/log/gunicorn.err viewsapp.wsgi:application
+ExecStart=/home/ubuntu/.cache/pypoetry/virtualenvs/gsc-api-UMzAv8LD-py3.10/bin/gunicorn --workers 3 --bind unix:/run/gsc-api.sock --access-logfile /var/log/gunicorn.log --error-logfile /var/log/gunicorn.err gsc.wsgi:application
 
 [Install]
 WantedBy=multi-user.target
